@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ParkLine Residences - Premium Apartment Visualization</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/building.css">
+    <link rel="stylesheet" href="css/filters.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <!-- ParkLine Logo - CLICKABLE LINK -->
+            <img src="public/ParkLine-logo.png" alt="ParkLine Logo" class="logo-image" 
+                 style="height: 40px; width: auto; object-fit: contain; cursor: pointer;" 
+                 onclick="window.open('https://izostone.mk/', '_blank')"
+                 onerror="this.style.display='none'; document.querySelector('.logo-fallback').style.display='block';">
+            
+            <!-- Fallback text logo if image fails - CLICKABLE LINK -->
+            <h1 class="logo logo-fallback" 
+                style="display: none; cursor: pointer;" 
+                onclick="window.open('https://izostone.mk/', '_blank')">PARKLINE</h1>
+            
+            <!-- Language Switcher - Will be created by i18n.js -->
+            
+            <!-- Contact Info -->
+            <div class="contact-info">
+                <div class="phone-group">
+                    <svg class="phone-icon" viewBox="0 0 24 24">
+                        <path d="M6.62 10.79c1.44 2.83 3.76 5.15 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                    </svg>
+                    +389 76 22 00 88
+                </div>
+                <a href="mailto:contact@izostone.mk?subject=%D0%A1%D0%B5%20%D0%B8%D0%BD%D1%82%D0%B5%D1%80%D0%B5%D1%81%D0%B8%D1%80%D0%B0%D0%BC%20%D0%B7%D0%B0%20%D0%BF%D0%BE%D0%B2%D0%B5%D1%9B%D0%B5%20%D0%B8%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%86%D0%B8%D0%B8" class="email-link">contact@izostone.mk</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-container">
+        <!-- View Switcher Arrow -->
+        <div class="view-switcher">
+            <button class="view-arrow" onclick="switchView()" id="viewArrow">
+                <span class="arrow-icon">→</span>
+            </button>
+            <div class="view-indicator" id="viewIndicator" data-i18n="view-1">Поглед 1</div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Building Visualization Container -->
+            <div class="building-container">
+                <!-- Background Images -->
+                <div class="background-wrapper">
+                    <img src="public/background.png" alt="ParkLine Building View 1" class="background-image active" id="background1">
+                    <img src="public/background2.png" alt="ParkLine Building View 2" class="background-image" id="background2">
+                </div>
+
+                <!-- SVG Overlays -->
+                <div class="svg-overlay" id="svgOverlay1">
+                    <!-- View 1 SVG shapes will be loaded here -->
+                </div>
+                <div class="svg-overlay" id="svgOverlay2" style="display: none;">
+                    <!-- View 2 SVG shapes will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Apartment Details Panel -->
+        <div class="apartment-details" id="apartmentDetails" style="display: none;">
+            <div class="details-header">
+                <h3 id="apartmentTitle" data-i18n="apartment-details">Детали за станот</h3>
+                <button class="close-btn" onclick="closeApartmentDetails()">×</button>
+            </div>
+            <div class="details-content" id="detailsContent">
+                <!-- Apartment details will be populated here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- STICKY FOOTER - CORRECTED LABELS: СПРАТ - СПАЛНИ СОБИ - ВКУПНО - ОТСТРАНИ МАСКИ -->
+    <div class="filters-panel">
+        <!-- 1. Floors Filter - CORRECTED LABEL -->
+        <div class="filter-section">
+            <label class="filter-label" data-i18n="filter-floor">СПРАТ:</label>
+            <div class="slider-container">
+                <div class="slider-values" id="floorValues">
+                    <span>1</span>
+                    <span>24</span>
+                </div>
+                <div class="dual-slider-container" id="floorSliderContainer">
+                    <!-- Floor dual slider will be created here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Bedrooms Filter - CORRECTED LABEL -->
+        <div class="filter-section">
+            <label class="filter-label" data-i18n="filter-bedrooms">СПАЛНИ СОБИ:</label>
+            <div class="bedroom-filters" id="bedroomFilters">
+                <!-- Bedroom filter buttons will be populated here -->
+            </div>
+        </div>
+
+        <!-- 3. Area Filter - CORRECT LABEL -->
+        <div class="filter-section">
+            <label class="filter-label" data-i18n="filter-area">ВКУПНО (М²):</label>
+            <div class="slider-container">
+                <div class="slider-values" id="areaValues">
+                    <span>80</span>
+                    <span>160</span>
+                </div>
+                <div class="dual-slider-container" id="areaSliderContainer">
+                    <!-- Area dual slider will be created here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Clear Button -->
+        <div class="filter-actions">
+            <button class="filter-btn clear" onclick="clearAllFilters()" data-i18n="clear-filters">Отстрани маски</button>
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="js/config.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/googleSheets.js"></script>
+    <script src="js/apartmentDetails.js"></script>
+    <script src="js/svgloader_final.js"></script>
+    <script src="js/filters.js"></script>
+    <script src="js/analytics.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

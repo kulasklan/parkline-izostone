@@ -1,0 +1,377 @@
+/* FIXED: Building Container and Visualization */
+.building-container {
+    position: relative;
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    margin-bottom: 1rem; /* Space for sticky footer */
+}
+
+.background-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.background-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    opacity: 0;
+    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+}
+
+.background-image.active {
+    opacity: 1;
+}
+
+/* View Switcher */
+.view-switcher {
+    position: fixed;
+    left: 2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 500;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.view-arrow {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(20px);
+    border: 2px solid rgba(148, 163, 184, 0.3);
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.view-arrow:hover {
+    background: rgba(15, 23, 42, 1);
+    transform: scale(1.05);
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4);
+    border-color: var(--accent-orange);
+}
+
+.arrow-icon {
+    transition: var(--transition);
+    font-weight: bold;
+}
+
+.view-indicator {
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: bold;
+    color: var(--text-primary);
+    text-align: center;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* FIXED: SVG Overlay Styles */
+.svg-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: auto;
+    z-index: 10;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.svg-overlay svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* UPDATED: SVG Apartment Shape Styles */
+.apartment-shape {
+    pointer-events: all !important;
+    cursor: pointer !important;
+    transition: fill 0.3s ease, stroke 0.3s ease, opacity 0.3s ease !important;
+    opacity: 1 !important;
+}
+
+/* DEFAULT STATE - 30% opacity with white border 50% opacity */
+.apartment-shape {
+    fill: rgba(156, 163, 175, 0.3) !important;
+    stroke: rgba(255, 255, 255, 0.5) !important;
+    stroke-width: 1px !important;
+}
+
+/* AVAILABLE STATE - 30% opacity green with white border */
+.apartment-shape.available {
+    fill: rgba(16, 185, 129, 0.3) !important;
+    stroke: rgba(255, 255, 255, 0.5) !important;
+    stroke-width: 1px !important;
+}
+
+/* AVAILABLE HOVER/CLICK - 70% opacity NO border */
+.apartment-shape.available:hover,
+.apartment-shape.available.selected {
+    fill: rgba(16, 185, 129, 0.7) !important;
+    stroke: none !important;
+    stroke-width: 0 !important;
+}
+
+/* RESERVED STATE - 30% opacity blue with white border */
+.apartment-shape.reserved {
+    fill: rgba(59, 130, 246, 0.3) !important;
+    stroke: rgba(255, 255, 255, 0.5) !important;
+    stroke-width: 1px !important;
+}
+
+/* RESERVED HOVER/CLICK - 70% opacity NO border */
+.apartment-shape.reserved:hover,
+.apartment-shape.reserved.selected {
+    fill: rgba(59, 130, 246, 0.7) !important;
+    stroke: none !important;
+    stroke-width: 0 !important;
+}
+
+/* SOLD STATE - 30% opacity red with white border */
+.apartment-shape.sold {
+    fill: rgba(239, 68, 68, 0.3) !important;
+    stroke: rgba(255, 255, 255, 0.5) !important;
+    stroke-width: 1px !important;
+}
+
+/* SOLD HOVER/CLICK - 70% opacity NO border */
+.apartment-shape.sold:hover,
+.apartment-shape.sold.selected {
+    fill: rgba(239, 68, 68, 0.7) !important;
+    stroke: none !important;
+    stroke-width: 0 !important;
+}
+
+/* HIDDEN STATE */
+.apartment-shape.hidden {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    display: none !important;
+}
+
+/* Apartment Details Panel */
+.apartment-details {
+    position: fixed;
+    right: 2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 350px;
+    background: rgba(15, 23, 42, 1) !important;
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-xl);
+    z-index: 400;
+    transition: var(--transition);
+}
+
+.details-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.details-header h3 {
+    color: var(--accent-orange);
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: var(--transition);
+}
+
+.close-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+.details-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem 0;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.detail-label {
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+.detail-value {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.detail-value.link {
+    color: var(--accent-teal);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.detail-value.link:hover {
+    color: #0891b2;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.status-badge.free {
+    background: rgba(16, 185, 129, 0.2);
+    color: var(--status-free);
+    border: 1px solid var(--status-free);
+}
+
+.status-badge.available {
+    background: rgba(16, 185, 129, 0.2);
+    color: var(--status-free);
+    border: 1px solid var(--status-free);
+}
+
+.status-badge.reserved {
+    background: rgba(59, 130, 246, 0.2);
+    color: var(--status-reserved);
+    border: 1px solid var(--status-reserved);
+}
+
+.status-badge.sold {
+    background: rgba(239, 68, 68, 0.2);
+    color: var(--status-sold);
+    border: 1px solid var(--status-sold);
+}
+
+/* Analytics Modal */
+.analytics-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(10px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.analytics-modal.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    max-width: 800px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-xl);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.modal-header h2 {
+    color: var(--accent-orange);
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.analytics-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.analytics-card {
+    background: rgba(148, 163, 184, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--border-radius-sm);
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.analytics-card h3 {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+}
+
+.analytics-card .value {
+    color: var(--text-primary);
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.analytics-card .label {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+}

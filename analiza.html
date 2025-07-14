@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ParkLine Residences - Analytics Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        /* Login Screen */
+        .login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .login-card {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-card h2 {
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            font-size: 1.75rem;
+        }
+
+        .login-card p {
+            color: #64748b;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .error-message {
+            color: #ef4444;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+        }
+
+        /* Dashboard Styles */
+        .dashboard {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .dashboard.active {
+            display: block;
+        }
+
+        .header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #1e293b;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .date-selector {
+            padding: 0.5rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .logout-btn {
+            background: #ef4444;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+        }
+
+        .main-content {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .stat-title {
+            color: #64748b;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-change {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .stat-change.positive {
+            color: #10b981;
+        }
+
+        .stat-change.negative {
+            color: #ef4444;
+        }
+
+        .chart-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .chart-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .chart-subtitle {
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        .chart-placeholder {
+            height: 300px;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .apartment-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .apartment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .apartment-item:last-child {
+            border-bottom: none;
+        }
+
+        .apartment-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .apartment-id {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .apartment-details {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        .apartment-views {
+            font-weight: 600;
+            color: #3b82f6;
+        }
+
+        .filter-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .filter-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .filter-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .filter-item:last-child {
+            border-bottom: none;
+        }
+
+        .filter-label {
+            color: #374151;
+            font-weight: 500;
+        }
+
+        .filter-count {
+            background: #3b82f6;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .leads-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .leads-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .leads-table th,
+        .leads-table td {
+            text-align: left;
+            padding: 0.75rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .leads-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .leads-table td {
+            color: #1e293b;
+        }
+
+        .lead-type {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .lead-type.contact {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .lead-type.phone {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        .status-available {
+            background: #10b981;
+        }
+
+        .status-reserved {
+            background: #3b82f6;
+        }
+
+        .status-sold {
+            background: #ef4444;
+        }
+
+        @media (max-width: 768px) {
+            .chart-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-card">
+            <h2>🏢 ParkLine Analytics</h2>
+            <p>Enter your credentials to access the dashboard</p>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="login-btn">Access Dashboard</button>
+                <div class="error-message" id="errorMessage" style="display: none;"></div>
+            </form>
+            <p style="margin-top: 2rem; font-size: 0.875rem; color: #64748b;">
+                Demo credentials: <strong>admin</strong> / <strong>parkline2024</strong>
+            </p>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="dashboard" id="dashboard">
+        <header class="header">
+            <h1>📊 ParkLine Analytics Dashboard</h1>
+            <div class="header-controls">
+                <select class="date-selector" id="dateRange">
+                    <option value="7">Last 7 days</option>
+                    <option value="30" selected>Last 30 days</option>
+                    <option value="90">Last 90 days</option>
+                </select>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Key Metrics -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">Total Visitors</span>
+                        <div class="stat-icon" style="background: #dbeafe; color: #1d4ed8;">👥</div>
+                    </div>
+                    <div class="stat-value" id="totalVisitors">2,847</div>
+                    <div class="stat-change positive">+12.5% from last period</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">Apartment Views</span>
+                        <div class="stat-icon" style="background: #dcfce7; color: #166534;">🏠</div>
+                    </div>
+                    <div class="stat-value" id="apartmentViews">1,234</div>
+                    <div class="stat-change positive">+8.3% from last period</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">Leads Generated</span>
+                        <div class="stat-icon" style="background: #fef3c7; color: #92400e;">📞</div>
+                    </div>
+                    <div class="stat-value" id="leadsGenerated">89</div>
+                    <div class="stat-change positive">+15.7% from last period</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">Conversion Rate</span>
+                        <div class="stat-icon" style="background: #fce7f3; color: #be185d;">📈</div>
+                    </div>
+                    <div class="stat-value" id="conversionRate">3.1%</div>
+                    <div class="stat-change positive">+0.4% from last period</div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="chart-section">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Visitor Traffic Over Time</h3>
+                        <p class="chart-subtitle">Daily visitors and apartment interactions</p>
+                    </div>
+                    <div class="chart-placeholder">
+                        📊 Interactive Chart: Daily visitors, apartment clicks, and lead generation trends
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Most Popular Apartments</h3>
+                        <p class="chart-subtitle">Top 10 most viewed units</p>
+                    </div>
+                    <div class="apartment-list" id="popularApartments">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Usage Statistics -->
+            <div class="filter-stats">
+                <div class="filter-card">
+                    <h3 class="chart-title">Bedroom Preferences</h3>
+                    <div id="bedroomStats">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="filter-card">
+                    <h3 class="chart-title">Floor Preferences</h3>
+                    <div id="floorStats">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="filter-card">
+                    <h3 class="chart-title">Area Range Searches</h3>
+                    <div id="areaStats">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Device & Browser Stats -->
+            <div class="chart-section">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Device Usage</h3>
+                        <p class="chart-subtitle">Mobile vs Desktop traffic</p>
+                    </div>
+                    <div class="chart-placeholder">
+                        📱 Device Breakdown: 68% Mobile, 32% Desktop
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Average Session Time</h3>
+                        <p class="chart-subtitle">Time spent exploring apartments</p>
+                    </div>
+                    <div class="chart-placeholder">
+                        ⏱️ Avg. Session: 4m 32s<br>
+                        📊 Bounce Rate: 23.4%
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Leads -->
+            <div class="leads-section">
+                <h3 class="chart-title" style="margin-bottom: 1.5rem;">Recent Leads</h3>
+                <div style="overflow-x: auto;">
+                    <table class="leads-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Contact</th>
+                                <th>Apartment Interest</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leadsTable">
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Demo credentials
+        const DEMO_CREDENTIALS = {
+            username: 'admin',
+            password: 'parkline2024'
+        };
+
+        // Login functionality
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
+            
+            if (username === DEMO_CREDENTIALS.username && password === DEMO_CREDENTIALS.password) {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('dashboard').classList.add('active');
+                initializeDashboard();
+            } else {
+                errorMessage.textContent = 'Invalid credentials. Please try again.';
+                errorMessage.style.display = 'block';
+            }
+        });
+
+        function logout() {
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('dashboard').classList.remove('active');
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        // Generate demo data
+        function generateDemoData() {
+            // Popular apartments data
+            const apartments = [];
+            const views = [156, 142, 138, 129, 124, 118, 115, 109, 98, 94];
+            const statuses = ['available', 'reserved', 'sold'];
+            
+            for (let i = 1; i <= 10; i++) {
+                const floor = Math.floor(Math.random() * 9) + 1;
+                const unit = Math.floor(Math.random() * 8) + 1;
+                const bedrooms = [2, 3, 4][Math.floor(Math.random() * 3)];
+                const area = 60 + Math.floor(Math.random() * 80);
+                const status = statuses[Math.floor(Math.random() * statuses.length)];
+                
+                apartments.push({
+                    id: `${floor}.${unit}`,
+                    bedrooms: bedrooms,
+                    area: area,
+                    views: views[i-1],
+                    status: status
+                });
+            }
+            
+            return { apartments };
+        }
+
+        // Initialize dashboard with demo data
+        function initializeDashboard() {
+            const data = generateDemoData();
+            
+            // Populate popular apartments
+            const popularApartments = document.getElementById('popularApartments');
+            popularApartments.innerHTML = data.apartments.map(apt => `
+                <div class="apartment-item">
+                    <div class="apartment-info">
+                        <span class="status-indicator status-${apt.status}"></span>
+                        <div>
+                            <div class="apartment-id">Apartment ${apt.id}</div>
+                            <div class="apartment-details">${apt.bedrooms} BR • ${apt.area} m²</div>
+                        </div>
+                    </div>
+                    <div class="apartment-views">${apt.views} views</div>
+                </div>
+            `).join('');
+            
+            // Populate bedroom stats
+            const bedroomStats = document.getElementById('bedroomStats');
+            const bedroomData = [
+                { bedrooms: '2 Bedrooms', count: 342 },
+                { bedrooms: '3 Bedrooms', count: 289 },
+                { bedrooms: '4 Bedrooms', count: 156 },
+                { bedrooms: '1 Bedroom', count: 98 }
+            ];
+            
+            bedroomStats.innerHTML = bedroomData.map(item => `
+                <div class="filter-item">
+                    <span class="filter-label">${item.bedrooms}</span>
+                    <span class="filter-count">${item.count}</span>
+                </div>
+            `).join('');
+            
+            // Populate floor stats
+            const floorStats = document.getElementById('floorStats');
+            const floorData = [
+                { floor: 'Floors 5-9', count: 234 },
+                { floor: 'Floors 1-4', count: 198 },
+                { floor: 'Floors 10+', count: 167 }
+            ];
+            
+            floorStats.innerHTML = floorData.map(item => `
+                <div class="filter-item">
+                    <span class="filter-label">${item.floor}</span>
+                    <span class="filter-count">${item.count}</span>
+                </div>
+            `).join('');
+            
+            // Populate area stats
+            const areaStats = document.getElementById('areaStats');
+            const areaData = [
+                { range: '80-120 m²', count: 298 },
+                { range: '60-80 m²', count: 187 },
+                { range: '120+ m²', count: 134 }
+            ];
+            
+            areaStats.innerHTML = areaData.map(item => `
+                <div class="filter-item">
+                    <span class="filter-label">${item.range}</span>
+                    <span class="filter-count">${item.count}</span>
+                </div>
+            `).join('');
+            
+            // Populate recent leads
+            const leadsTable = document.getElementById('leadsTable');
+            const leads = [
+                { date: '2024-01-15', type: 'contact', contact: 'marko.petrovski@email.com', apartment: '3.4', status: 'New' },
+                { date: '2024-01-15', type: 'phone', contact: '+389 70 123 456', apartment: '5.2', status: 'Contacted' },
+                { date: '2024-01-14', type: 'contact', contact: 'ana.stojanovic@email.com', apartment: '2.7', status: 'Qualified' },
+                { date: '2024-01-14', type: 'phone', contact: '+389 71 987 654', apartment: '4.1', status: 'New' },
+                { date: '2024-01-13', type: 'contact', contact: 'stefan.nikolov@email.com', apartment: '6.3', status: 'Contacted' }
+            ];
+            
+            leadsTable.innerHTML = leads.map(lead => `
+                <tr>
+                    <td>${lead.date}</td>
+                    <td><span class="lead-type ${lead.type}">${lead.type === 'contact' ? '📧 Contact' : '📞 Phone'}</span></td>
+                    <td>${lead.contact}</td>
+                    <td>Apartment ${lead.apartment}</td>
+                    <td>${lead.status}</td>
+                </tr>
+            `).join('');
+            
+            // Update stats based on date range
+            updateStatsForDateRange();
+        }
+
+        // Update stats when date range changes
+        document.getElementById('dateRange').addEventListener('change', updateStatsForDateRange);
+
+        function updateStatsForDateRange() {
+            const dateRange = document.getElementById('dateRange').value;
+            const multiplier = dateRange === '7' ? 0.3 : dateRange === '30' ? 1 : 2.8;
+            
+            document.getElementById('totalVisitors').textContent = Math.round(2847 * multiplier).toLocaleString();
+            document.getElementById('apartmentViews').textContent = Math.round(1234 * multiplier).toLocaleString();
+            document.getElementById('leadsGenerated').textContent = Math.round(89 * multiplier);
+            document.getElementById('conversionRate').textContent = (3.1 + (Math.random() - 0.5)).toFixed(1) + '%';
+        }
+
+        // Auto-refresh data every 30 seconds (for demo purposes)
+        setInterval(() => {
+            if (document.getElementById('dashboard').classList.contains('active')) {
+                // Simulate real-time updates
+                const currentVisitors = parseInt(document.getElementById('totalVisitors').textContent.replace(',', ''));
+                const newVisitors = currentVisitors + Math.floor(Math.random() * 10);
+                document.getElementById('totalVisitors').textContent = newVisitors.toLocaleString();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
